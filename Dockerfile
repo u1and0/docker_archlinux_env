@@ -7,10 +7,12 @@ RUN cp /etc/pacman.d/mirrorlist{,.bac} &&\
     reflector --verbose --latest 200 --sort rate --save /etc/pacman.d/mirrorlist
 # reflector --verbose --country 'Japan' -l 10
 
+RUN pacman -S --noconfirm git openssh vim
+
 CMD ["/bin/bash"]
 
 
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
-      description="archlinux container. Rebuild pacman server sort by rate"\
-      description.ja="Archlinux コンテナ。pacmanサーバーをレート順に再構築"\
-      version="archlinux:v0.1.1"
+      description="archlinux container. minimum develop env enabling git"\
+      description.ja="Archlinux コンテナ。git使用可能な最小限開発環境"\
+      version="archlinux:v0.2.1"
