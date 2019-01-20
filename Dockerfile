@@ -27,7 +27,11 @@ RUN git clone -b v1.12.0 --depth 1\
         git reset --hard &&\
         rm -rf "${HOME}/dotfiles"
 
-CMD ["/bin/bash"]
+# Reinstall packages required by zplug
+RUN pacman -Sy --noconfirm zsh awk git &&\
+    eval zsh -l
+
+CMD ["/usr/bin/zsh"]
 
 
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
