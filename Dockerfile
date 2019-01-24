@@ -4,7 +4,7 @@ FROM oblique/archlinux-yay:latest
 RUN pacman -Sy --noconfirm reflector &&\
     reflector --verbose --latest 200 --sort rate --save /etc/pacman.d/mirrorlist
 
-RUN pacman -Syu --noconfirm git openssh vim
+RUN pacman -Syu --noconfirm git openssh
 
 # directories
 ARG HOME="/root"
@@ -21,20 +21,16 @@ RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
     locale-gen && pacman -Syy
 
 # My dotfiles
-RUN git clone -b v1.12.0 --depth 1\
-        https://github.com/u1and0/dotfiles.git &&\
-        mv -i "${HOME}/dotfiles/.git" "${HOME}" &&\
-        git reset --hard &&\
-        rm -rf "${HOME}/dotfiles"
+RUN git clone -b v1.13.1 --depth 1\
+    https://github.com/u1and0/dotfiles.git &&\
+    mv -i "${HOME}/dotfiles/.git" "${HOME}" &&\
+    git reset --hard &&\
+    rm -rf "${HOME}/dotfiles"
 
-# Reinstall packages required by zplug
-RUN pacman -Sy --noconfirm zsh awk git &&\
-    eval zsh -l
-
-CMD ["/usr/bin/zsh"]
+CMD ["/bin/bash"]
 
 
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
-      description="archlinux container. aur install by yay."\
-      description.ja="Archlinux コンテナ。yayによるaurインストール可能"\
-      version="arlhlinux:v1.0.0"
+      description="archlinux container. aur install by yay. sudo -u aur yay -S {package}"\
+      description.ja="Archlinux コンテナ。yayによるaurインストール可能. sudo -u aur yay -S {package}, dotfiles v1.13.1"\
+      version="arlhlinux:v0.5.0"
