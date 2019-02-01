@@ -10,10 +10,10 @@ docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 ```
 
 # Version
-v0.7.1          [add] screenshot & [mod] url
-v0.7.0          designated by DOTFILES arg when building
-v0.6.0          [add] usage, branch=master
-v0.5.0           yay install & dotfiles version v1.13.1
+* v0.7.1          [add] screenshot & [mod] url
+* v0.7.0          designated by DOTFILES arg when building
+* v0.6.0          [add] usage, branch=master
+* v0.5.0           yay install & dotfiles version v1.13.1
 
 
 # Description
