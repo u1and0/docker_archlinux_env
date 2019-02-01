@@ -10,6 +10,7 @@ docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 ```
 
 # Version
+* v1.1.0          Remove reflector, use mirrorlist already made
 * v0.7.1          [add] screenshot & [mod] url
 * v0.7.0          designated by DOTFILES arg when building
 * v0.6.0          [add] usage, branch=master
@@ -21,4 +22,4 @@ docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 * yayによるaurインストール可能
   * `sudo -u aur yay -S {package}`
 * buildするときはdotfilesのバージョンを指定する
-  * `docker build --build-arg DOTFILES=v1.13.3 -t u1and0/archlinux .`
+  * `docker build --build-arg DOTFILES=v1.13.5 -t u1and0/archlinux .`
