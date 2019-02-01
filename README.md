@@ -23,3 +23,8 @@ docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
   * `sudo -u aur yay -S {package}`
 * buildするときはdotfilesのバージョンを指定する
   * `docker build --build-arg DOTFILES=v1.13.5 -t u1and0/archlinux .`
+
+# TODO
+* man install
+Failed to open file "/sys/devices/system/cpu/microcode/reload": Read-only file system
+というエラーがでて `pacman -S man` が失敗する
