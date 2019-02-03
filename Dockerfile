@@ -2,7 +2,7 @@
 # docker build --build-arg DOTFILES=v.1.13.5 -t u1and0/archlinux .
 # docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 
-FROM base/archlinux
+FROM base/archlinux:2019.01.01
 
 # Japanese setting
 ENV LANG="ja_JP.UTF8"\
@@ -47,7 +47,7 @@ RUN pacman -Syy --noconfirm base-devel &&\
     rm -rf /home/aur/.cache &&\
     rm -rf /build
 
-    
+
 # My dotfiles
 ARG HOME="/root"
 WORKDIR "${HOME}"
@@ -65,4 +65,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux container. aur install by yay. sudo -u aur yay -S {package}"\
       description.ja="Archlinux コンテナ。yayによるaurインストール可能. sudo -u aur yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:v2.0.0"
+      version="arlhlinux:2019.01.01"
