@@ -2,7 +2,7 @@
 # docker build --build-arg DOTFILES=v.1.13.5 -t u1and0/archlinux .
 # docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 
-FROM base/archlinux:2019.01.01
+FROM base/archlinux
 
 # Japanese setting
 ENV LANG="ja_JP.UTF8"\
