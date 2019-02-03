@@ -1,8 +1,12 @@
 # Usage:
-# docker build --build-arg DOTFILES=v.1.13.5 -t u1and0/archlinux .
 # docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
+#
+# For building:
+# docker build --build-arg BASE="2019.01.01"\
+#   BRANCH="v1.13.5" USER="u1and0" -t u1and0/archlinux .
 
-FROM base/archlinux
+ARG BASE="latest"
+FROM base/archlinux:${BASE}
 
 # Japanese setting
 ENV LANG="ja_JP.UTF8"\
@@ -31,8 +35,9 @@ RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
     mkdir -p /home/aur/.gnupg &&\
     echo 'standard-resolver' > /home/aur/.gnupg/dirmngr.conf &&\
     chown -R aur:aur /home/aur &&\
-    mkdir /build &&\ 
-    chown -R aur:aur /build
+    mkdir /build &&\
+    chown -R aur:aur /build &&\
+    yes | pacman -Scc
 
 # yay install
 WORKDIR "/build"
@@ -51,9 +56,10 @@ RUN pacman -Syy --noconfirm base-devel &&\
 # My dotfiles
 ARG HOME="/root"
 WORKDIR "${HOME}"
-ARG DOTFILES=master
-RUN git clone -b $DOTFILES --depth 1\
-    https://github.com/u1and0/dotfiles.git &&\
+ARG BRANCH="master"
+ARG USER="u1and0"
+RUN git clone -b ${BRANCH} --depth 1\
+    https://github.com/${USER}/dotfiles.git &&\
     : "Replace dotfiles" &&\
     mv -i "${HOME}/dotfiles/.git" "${HOME}" &&\
     git reset --hard &&\
