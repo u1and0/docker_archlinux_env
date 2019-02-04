@@ -5,7 +5,8 @@
 # docker build --build-arg BASE="2019.01.01"\
 #   BRANCH="v1.13.5" USER="u1and0" -t u1and0/archlinux .
 
-FROM base/archlinux:2018.12.01
+ARG BASE="2018.11.01"
+FROM base/archlinux:${BASE}
 
 # Japanese setting
 ENV LANG="ja_JP.UTF8"\
