@@ -4,8 +4,7 @@
 # For building:
 # docker build --build-arg BASE="2019.01.01" -t u1and0/archlinux .
 
-ARG BASE="latest"
-FROM archlinux/base:${BASE}
+FROM archlinux/base:latest
 
 # Japanese setting
 ENV LANG="ja_JP.UTF8"\
@@ -71,4 +70,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux container. aur install by yay. sudo -u aur yay -S {package}"\
       description.ja="Archlinux コンテナ。yayによるaurインストール可能. sudo -u aur yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:3.0.0"
+      version="arlhlinux:3.0.1"
