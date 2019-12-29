@@ -58,7 +58,7 @@ RUN sudo -u aur makepkg --noconfirm -si &&\
 
 # My dotfiles
 WORKDIR /root
-RUN git clone -b v1.14.1 --depth 1\
+RUN git clone --depth 1\
     https://github.com/u1and0/dotfiles.git dotfiles &&\
     : "Replace dotfiles" &&\
     mv -f dotfiles/.git . &&\
