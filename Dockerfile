@@ -2,7 +2,7 @@
 # docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 #
 # For building:
-# docker build --build-arg BASE="2019.01.01" -t u1and0/archlinux .
+# docker build --build-arg branch="v1.15.1" -t u1and0/archlinux .
 
 FROM archlinux/base:latest
 
@@ -58,7 +58,10 @@ RUN sudo -u aur makepkg --noconfirm -si &&\
 
 # My dotfiles
 WORKDIR /root
-RUN git clone --depth 1\
+# `--build-arg=branch=v1.15.1` のようにしてブランチ名、タグ名指定しなければ
+# デフォルトではmasterブランチをcloneしてくる
+ARG branch=master
+RUN git clone --depth 1 --branch $branch\
     https://github.com/u1and0/dotfiles.git dotfiles &&\
     : "Replace dotfiles" &&\
     mv -f dotfiles/.git . &&\
@@ -70,4 +73,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux container. aur install by yay. sudo -u aur yay -S {package}"\
       description.ja="Archlinux コンテナ。yayによるaurインストール可能. sudo -u aur yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:3.0.1"
+      version="arlhlinux:3.1.0"
