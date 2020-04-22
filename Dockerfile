@@ -27,41 +27,43 @@ RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
     pacman -Syyu --noconfirm git openssh base-devel
     # yes | pacman -Scc ; return 0
 
+ARG LOUSER=u1and0
 RUN : "Add yay option" &&\
     echo '[multilib]' >> /etc/pacman.conf &&\
     echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf &&\
     pacman -Sy &&\
-    : "Add user aur for yay install" &&\
-    useradd -m -r -s /bin/bash aur &&\
-    passwd -d aur &&\
+    : "Add user ${LOUSER} for yay install" &&\
+    useradd -m -r -s /bin/bash ${LOUSER} &&\
+    passwd -d ${LOUSER} &&\
     mkdir -p /etc/sudoers.d &&\
-    touch /etc/sudoers.d/aur &&\
-    echo 'aur ALL=(ALL) ALL' > /etc/sudoers.d/aur &&\
-    mkdir -p /home/aur/.gnupg &&\
-    echo 'standard-resolver' > /home/aur/.gnupg/dirmngr.conf &&\
-    chown -R aur:aur /home/aur &&\
+    touch /etc/sudoers.d/${LOUSER} &&\
+    echo "${LOUSER} ALL=(ALL) ALL" > /etc/sudoers.d/${LOUSER} &&\
+    mkdir -p /home/${LOUSER}/.gnupg &&\
+    echo 'standard-resolver' > /home/${LOUSER}/.gnupg/dirmngr.conf &&\
+    chown -R ${LOUSER}:${LOUSER} /home/${LOUSER} &&\
     mkdir /build &&\
-    chown -R aur:aur /build
+    chown -R ${LOUSER}:${LOUSER} /build
 
 # yay install
 WORKDIR "/build"
-RUN sudo -u aur git clone --depth 1 https://aur.archlinux.org/yay.git
+RUN sudo -u ${LOUSER} git clone --depth 1 https://aur.archlinux.org/yay.git
 WORKDIR "/build/yay"
-RUN sudo -u aur makepkg --noconfirm -si &&\
-    sudo -u aur yay --afterclean --removemake --save &&\
+RUN sudo -u ${LOUSER} makepkg --noconfirm -si &&\
+    sudo -u ${LOUSER} yay --afterclean --removemake --save &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns &&\
     : "Remove caches forcely" &&\
     : "[error] yes | pacman -Scc" &&\
-    rm -rf /home/aur/.cache &&\
+    rm -rf /home/${LOUSER}/.cache &&\
     rm -rf /build
 
 
 # My dotfiles
-WORKDIR /root
+WORKDIR /home/${LOUSER}
+USER ${LOUSER}
 # `--build-arg=branch=v1.15.1` のようにしてブランチ名、タグ名指定しなければ
 # デフォルトではmasterブランチをcloneしてくる
 ARG branch=master
-RUN git clone --depth 1 --branch $branch\
+RUN git clone --branch $branch\
     https://github.com/u1and0/dotfiles.git dotfiles &&\
     : "Replace dotfiles" &&\
     mv -f dotfiles/.git . &&\
@@ -71,6 +73,6 @@ RUN git clone --depth 1 --branch $branch\
 CMD ["/bin/bash"]
 
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
-      description="archlinux container. aur install by yay. sudo -u aur yay -S {package}"\
-      description.ja="Archlinux コンテナ。yayによるaurインストール可能. sudo -u aur yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:3.1.0"
+      description="archlinux container. aur install by yay. yay -S {package}"\
+      description.ja="Archlinux コンテナ。yayによるaurインストール可能. yay -S {package}, dotfiles master branch"\
+      version="arlhlinux:4.0.0"
