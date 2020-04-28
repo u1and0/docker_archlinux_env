@@ -24,8 +24,9 @@ RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
     chmod -R 755 /etc/pacman.d &&\
     : "Fix pacman.conf" &&\
     sed -ie 's/#Color/Color/' /etc/pacman.conf &&\
-    pacman -Syyu --noconfirm git openssh base-devel
-    # yes | pacman -Scc ; return 0
+    pacman -Syyu --noconfirm git openssh base-devel &&\
+    : "Clear cache" &&\
+    pacman -Qtdq | xargs -r pacman --noconfirm -Rcns
 
 ARG USERNAME
 # docker build --Build-arg USERNAME=${USERNAME} -t u1and0/archlinux .
@@ -80,4 +81,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux container. aur install by yay. yay -S {package}"\
       description.ja="Archlinux コンテナ。yayによるaurインストール可能. yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:4.0.0"
+      version="arlhlinux:4.1.0"
