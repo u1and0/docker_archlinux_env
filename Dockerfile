@@ -27,39 +27,44 @@ RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
     pacman -Syyu --noconfirm git openssh base-devel
     # yes | pacman -Scc ; return 0
 
-ARG LOUSER=u1and0
-RUN : "Add yay option" &&\
+ARG USERNAME
+# docker build --Build-arg USERNAME=${USERNAME} -t u1and0/archlinux .
+ARG UID=1000
+ARG GID=1000
+RUN echo "Build start with USERNAME: $USERNAME UID: $UID GID: $GID" &&\
+    : "Add yay option" &&\
     echo '[multilib]' >> /etc/pacman.conf &&\
     echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf &&\
     pacman -Sy &&\
-    : "Add user ${LOUSER} for yay install" &&\
-    useradd -m -r -s /bin/bash ${LOUSER} &&\
-    passwd -d ${LOUSER} &&\
+    : "Add user ${USERNAME} for yay install" &&\
+    groupadd -g ${GID} ${USERNAME} &&\
+    useradd -u ${UID} -g ${GID} -m -s /bin/bash ${USERNAME} &&\
+    passwd -d ${USERNAME} &&\
     mkdir -p /etc/sudoers.d &&\
-    touch /etc/sudoers.d/${LOUSER} &&\
-    echo "${LOUSER} ALL=(ALL) ALL" > /etc/sudoers.d/${LOUSER} &&\
-    mkdir -p /home/${LOUSER}/.gnupg &&\
-    echo 'standard-resolver' > /home/${LOUSER}/.gnupg/dirmngr.conf &&\
-    chown -R ${LOUSER}:${LOUSER} /home/${LOUSER} &&\
+    touch /etc/sudoers.d/${USERNAME} &&\
+    echo "${USERNAME} ALL=(ALL) ALL" > /etc/sudoers.d/${USERNAME} &&\
+    mkdir -p /home/${USERNAME}/.gnupg &&\
+    echo 'standard-resolver' > /home/${USERNAME}/.gnupg/dirmngr.conf &&\
+    chown -R ${USERNAME}:${USERNAME} /home/${USERNAME} &&\
     mkdir /build &&\
-    chown -R ${LOUSER}:${LOUSER} /build
+    chown -R ${USERNAME}:${USERNAME} /build
 
 # yay install
 WORKDIR "/build"
-RUN sudo -u ${LOUSER} git clone --depth 1 https://aur.archlinux.org/yay.git
+RUN sudo -u ${USERNAME} git clone --depth 1 https://aur.archlinux.org/yay.git
 WORKDIR "/build/yay"
-RUN sudo -u ${LOUSER} makepkg --noconfirm -si &&\
-    sudo -u ${LOUSER} yay --afterclean --removemake --save &&\
+RUN sudo -u ${USERNAME} makepkg --noconfirm -si &&\
+    sudo -u ${USERNAME} yay --afterclean --removemake --save &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns &&\
     : "Remove caches forcely" &&\
     : "[error] yes | pacman -Scc" &&\
-    rm -rf /home/${LOUSER}/.cache &&\
+    rm -rf /home/${USERNAME}/.cache &&\
     rm -rf /build
 
 
 # My dotfiles
-WORKDIR /home/${LOUSER}
-USER ${LOUSER}
+WORKDIR /home/${USERNAME}
+USER ${USERNAME}
 # `--build-arg=branch=v1.15.1` のようにしてブランチ名、タグ名指定しなければ
 # デフォルトではmasterブランチをcloneしてくる
 ARG branch=master
