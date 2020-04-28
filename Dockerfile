@@ -28,7 +28,7 @@ RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
     : "Clear cache" &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns
 
-ARG USERNAME
+ARG USERNAME=u1and0
 # docker build --Build-arg USERNAME=${USERNAME} -t u1and0/archlinux .
 ARG UID=1000
 ARG GID=1000
@@ -81,4 +81,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux container. aur install by yay. yay -S {package}"\
       description.ja="Archlinux コンテナ。yayによるaurインストール可能. yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:4.1.0"
+      version="arlhlinux:4.1.1"
