@@ -10,6 +10,8 @@ docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 ```
 
 # Version
+* v4.1.0          [mod] build arg USERNAME
+* v4.0.0          [add] Local User
 * v2.0.1          [add] ARG: BASE, BRANCH, USER
 * 2019.01.01      FROM 2019.01.01
 * v2.0.0          [add] yay install scripts
@@ -23,11 +25,6 @@ docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 # Description
 * Archlinux コンテナ
 * yayによるaurインストール可能
-  * `sudo -u aur yay -S {package}`
+  * `yay -S {package}`
 * buildするときはdotfilesのバージョンを指定することもできる(デフォルトはmaster)
-  * `docker build --build-arg DOTFILES=v1.13.5 -t u1and0/archlinux .`
-
-# TODO
-* man install
-Failed to open file "/sys/devices/system/cpu/microcode/reload": Read-only file system
-というエラーがでて `pacman -S man` が失敗する
+  * `docker build --build-arg branch=v1.13.5 --build-arg USERNAME=$(whoami) -t u1and0/archlinux .`
