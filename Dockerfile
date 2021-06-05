@@ -2,11 +2,9 @@
 # docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 #
 # For building:
-# docker build --build-arg BASE="2019.01.01"\
-#   BRANCH="v1.13.5" USER="u1and0" -t u1and0/archlinux .
+# docker build --build-arg branch="v1.15.1" -t u1and0/archlinux .
 
-ARG BASE="latest"
-FROM base/archlinux:${BASE}
+FROM archlinux/base:latest
 
 # Japanese setting
 ENV LANG="ja_JP.UTF8"\
@@ -24,51 +22,63 @@ RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
     ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime &&\
     : "Permission fix" &&\
     chmod -R 755 /etc/pacman.d &&\
-    pacman -Syy --noconfirm git openssh base-devel &&\
+    : "Fix pacman.conf" &&\
+    sed -ie 's/#Color/Color/' /etc/pacman.conf &&\
+    pacman -Syyu --noconfirm git openssh base-devel &&\
+    : "Clear cache" &&\
+    pacman -Qtdq | xargs -r pacman --noconfirm -Rcns
+
+ARG USERNAME=u1and0
+# docker build --Build-arg USERNAME=${USERNAME} -t u1and0/archlinux .
+ARG UID=1000
+ARG GID=1000
+RUN echo "Build start with USERNAME: $USERNAME UID: $UID GID: $GID" &&\
     : "Add yay option" &&\
     echo '[multilib]' >> /etc/pacman.conf &&\
     echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf &&\
-    : "Add user aur for yay install" &&\
-    useradd -m -r -s /bin/bash aur &&\
-    passwd -d aur &&\
-    echo 'aur ALL=(ALL) ALL' > /etc/sudoers.d/aur &&\
-    mkdir -p /home/aur/.gnupg &&\
-    echo 'standard-resolver' > /home/aur/.gnupg/dirmngr.conf &&\
-    chown -R aur:aur /home/aur &&\
+    pacman -Sy &&\
+    : "Add user ${USERNAME} for yay install" &&\
+    groupadd -g ${GID} ${USERNAME} &&\
+    useradd -u ${UID} -g ${GID} -m -s /bin/bash ${USERNAME} &&\
+    passwd -d ${USERNAME} &&\
+    mkdir -p /etc/sudoers.d &&\
+    touch /etc/sudoers.d/${USERNAME} &&\
+    echo "${USERNAME} ALL=(ALL) ALL" > /etc/sudoers.d/${USERNAME} &&\
+    mkdir -p /home/${USERNAME}/.gnupg &&\
+    echo 'standard-resolver' > /home/${USERNAME}/.gnupg/dirmngr.conf &&\
+    chown -R ${USERNAME}:${USERNAME} /home/${USERNAME} &&\
     mkdir /build &&\
-    chown -R aur:aur /build &&\
-    yes | pacman -Scc
+    chown -R ${USERNAME}:${USERNAME} /build
 
 # yay install
 WORKDIR "/build"
-RUN sudo -u aur git clone --depth 1 https://aur.archlinux.org/yay.git
+RUN sudo -u ${USERNAME} git clone --depth 1 https://aur.archlinux.org/yay.git
 WORKDIR "/build/yay"
-RUN pacman -Syy --noconfirm base-devel &&\
-    sudo -u aur makepkg --noconfirm -si &&\
-    sudo -u aur yay --afterclean --removemake --save &&\
+RUN sudo -u ${USERNAME} makepkg --noconfirm -si &&\
+    sudo -u ${USERNAME} yay --afterclean --removemake --save &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns &&\
     : "Remove caches forcely" &&\
-    yes | pacman -Scc &&\
-    rm -rf /home/aur/.cache &&\
+    : "[error] yes | pacman -Scc" &&\
+    rm -rf /home/${USERNAME}/.cache &&\
     rm -rf /build
 
 
 # My dotfiles
-ARG HOME="/root"
-WORKDIR "${HOME}"
-ARG BRANCH="master"
-ARG USER="u1and0"
-RUN git clone -b ${BRANCH} --depth 1\
-    https://github.com/${USER}/dotfiles.git &&\
+WORKDIR /home/${USERNAME}
+USER ${USERNAME}
+# `--build-arg=branch=v1.15.1` のようにしてブランチ名、タグ名指定しなければ
+# デフォルトではmasterブランチをcloneしてくる
+ARG branch=master
+RUN git clone --branch $branch\
+    https://github.com/u1and0/dotfiles.git dotfiles &&\
     : "Replace dotfiles" &&\
-    mv -i "${HOME}/dotfiles/.git" "${HOME}" &&\
+    mv -f dotfiles/.git . &&\
     git reset --hard &&\
-    rm -rf "${HOME}/dotfiles" &&\
-    rmdir ${HOME}/{bacpac,pyenv}
+    rm -rf dotfiles
 
 CMD ["/bin/bash"]
 
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
-      description="archlinux container. aur install by yay. sudo -u aur yay -S {package}"\
-      description.ja="Archlinux コンテナ。yayによるaurインストール可能. sudo -u aur yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:2019.01.01"
+      description="archlinux container. aur install by yay. yay -S {package}"\
+      description.ja="Archlinux コンテナ。yayによるaurインストール可能. yay -S {package}, dotfiles master branch"\
+      version="arlhlinux:4.1.1"
