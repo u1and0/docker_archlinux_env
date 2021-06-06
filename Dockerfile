@@ -32,9 +32,7 @@ RUN : "Copy missing language pack '${SETLANG}'" &&\
     : "Set time locale, Do not use 'timedatectl set-timezone Asia/Tokyo'" &&\
     ln -fs /usr/share/zoneinfo/${LOCALETIME} /etc/localtime
 
-RUN : "Permission fix" &&\
-    chmod -R 755 /etc/pacman.d &&\
-    : "Fix pacman.conf" &&\
+RUN : "Fix pacman.conf" &&\
     sed -ie 's/#Color/Color/' /etc/pacman.conf &&\
     pacman -Syy --noconfirm archlinux-keyring &&\
     pacman -Su --noconfirm git openssh base-devel &&\
