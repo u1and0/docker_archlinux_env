@@ -4,27 +4,40 @@
 # For building:
 # docker build --build-arg branch="v1.15.1" -t u1and0/archlinux .
 
-FROM archlinux/base:latest
+FROM archlinux
 
-# Japanese setting
-ENV LANG="ja_JP.UTF8"\
-    LC_NUMERIC="ja_JP.UTF8"\
-    LC_TIME="ja_JP.UTF8"\
-    LC_MONETARY="ja_JP.UTF8"\
-    LC_PAPER="ja_JP.UTF8"\
-    LC_MEASUREMENT="ja_JP.UTF8"
 # Get reflector Server setting for faster download
 # Same as `reflector --verbose --country Japan -l 10 --sort rate`
 COPY mirrorlist /etc/pacman.d/mirrorlist
-RUN echo ja_JP.UTF-8 UTF-8 > /etc/locale.gen &&\
+
+# Japanese setting
+ARG SETLANG="ja_JP"
+ENV LANG="${SETLANG}.UTF8"\
+    LC_NUMERIC="${SETLANG}.UTF8"\
+    LC_TIME="${SETLANG}.UTF8"\
+    LC_MONETARY="${SETLANG}.UTF8"\
+    LC_PAPER="${SETLANG}.UTF8"\
+    LC_MEASUREMENT="${SETLANG}.UTF8"
+
+# Locale setting
+ARG GLIBVER="2.33"
+ARG LOCALETIME="Asia/Tokyo"
+RUN : "Copy missing language pack '${SETLANG}'" &&\
+    curl http://ftp.gnu.org/gnu/libc/glibc-${GLIBVER}.tar.bz2 | tar -xjC /tmp &&\
+    cp /tmp/glibc-${GLIBVER}/localedata/locales/${SETLANG} /usr/share/i18n/locales/ &&\
+    rm -rf /tmp/* &&\
+    : "Overwrite locale-gen" &&\
+    echo ${SETLANG}.UTF-8 UTF-8 > /etc/locale.gen &&\
     locale-gen &&\
     : "Set time locale, Do not use 'timedatectl set-timezone Asia/Tokyo'" &&\
-    ln -fs /usr/share/zoneinfo/Asia/Tokyo /etc/localtime &&\
-    : "Permission fix" &&\
+    ln -fs /usr/share/zoneinfo/${LOCALETIME} /etc/localtime
+
+RUN : "Permission fix" &&\
     chmod -R 755 /etc/pacman.d &&\
     : "Fix pacman.conf" &&\
     sed -ie 's/#Color/Color/' /etc/pacman.conf &&\
-    pacman -Syyu --noconfirm git openssh base-devel &&\
+    pacman -Syy --noconfirm archlinux-keyring &&\
+    pacman -Su --noconfirm git openssh base-devel &&\
     : "Clear cache" &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns
 
@@ -81,4 +94,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux container. aur install by yay. yay -S {package}"\
       description.ja="Archlinux コンテナ。yayによるaurインストール可能. yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:4.1.1"
+      version="arlhlinux:5.0.0"
