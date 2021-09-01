@@ -35,7 +35,7 @@ RUN : "Copy missing language pack '${SETLANG}'" &&\
 RUN : "Permission fix" &&\
     chmod -R 755 /etc/pacman.d &&\
     : "Fix pacman.conf" &&\
-    sed -ie 's/#Color/Color/' /etc/pacman.conf &&\
+    sed -i -e 's/#Color/Color/' /etc/pacman.conf &&\
     pacman -Syy --noconfirm archlinux-keyring &&\
     pacman -Su --noconfirm git openssh base-devel &&\
     : "Clear cache" &&\
@@ -80,8 +80,8 @@ RUN sudo -u ${USERNAME} makepkg --noconfirm -si &&\
 WORKDIR /home/${USERNAME}
 USER ${USERNAME}
 # `--build-arg=branch=v1.15.1` のようにしてブランチ名、タグ名指定しなければ
-# デフォルトではmasterブランチをcloneしてくる
-ARG branch=master
+# デフォルトではdevelopブランチをcloneしてくる
+ARG branch="develop"
 RUN git clone --branch $branch\
     https://github.com/u1and0/dotfiles.git dotfiles &&\
     : "Replace dotfiles" &&\
@@ -94,4 +94,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux container. aur install by yay. yay -S {package}"\
       description.ja="Archlinux コンテナ。yayによるaurインストール可能. yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:5.0.0"
+      version="arlhlinux:5.0.1"
