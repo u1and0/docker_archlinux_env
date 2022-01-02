@@ -1,13 +1,16 @@
 # Usage:
-# docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
+# $ docker run -it --rm -v `pwd`:/work -w /work u1and0/archlinux
 #
 # For building:
-# docker build --build-arg branch="v1.15.1" -t u1and0/archlinux .
+# $ git clone https://github.com/u1and0/docker_archlinux_env
+# $ docker build --build-arg USERNAME=${USERNAME} --build-arg branch="develop" -t u1and0/archlinux .
 
-FROM archlinux
+# Archlinux official image daily build version
+FROM archlinux/archlinux:base-devel
 
 # Get reflector Server setting for faster download
 # Same as `reflector --verbose --country Japan -l 10 --sort rate`
+COPY pacman.conf /etc/pacman.conf
 COPY mirrorlist /etc/pacman.d/mirrorlist
 
 # Japanese setting
@@ -32,23 +35,19 @@ RUN : "Copy missing language pack '${SETLANG}'" &&\
     : "Set time locale, Do not use 'timedatectl set-timezone Asia/Tokyo'" &&\
     ln -fs /usr/share/zoneinfo/${LOCALETIME} /etc/localtime
 
-RUN : "Permission fix" &&\
-    chmod -R 755 /etc/pacman.d &&\
-    : "Fix pacman.conf" &&\
-    sed -i -e 's/#Color/Color/' /etc/pacman.conf &&\
-    pacman -Syy --noconfirm archlinux-keyring &&\
-    pacman -Su --noconfirm git openssh base-devel &&\
+# Package update
+# `pacman-key --init` must run at first
+RUN pacman-key --init &&\
+    pacman-key --populate archlinux &&\
+    pacman -Syu --noconfirm git openssh &&\
     : "Clear cache" &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns
 
 ARG USERNAME=u1and0
-# docker build --Build-arg USERNAME=${USERNAME} -t u1and0/archlinux .
+# docker build --build-arg USERNAME=${USERNAME} -t u1and0/archlinux .
 ARG UID=1000
 ARG GID=1000
 RUN echo "Build start with USERNAME: $USERNAME UID: $UID GID: $GID" &&\
-    : "Add yay option" &&\
-    echo '[multilib]' >> /etc/pacman.conf &&\
-    echo 'Include = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf &&\
     pacman -Sy &&\
     : "Add user ${USERNAME} for yay install" &&\
     groupadd -g ${GID} ${USERNAME} &&\
@@ -64,17 +63,7 @@ RUN echo "Build start with USERNAME: $USERNAME UID: $UID GID: $GID" &&\
     chown -R ${USERNAME}:${USERNAME} /build
 
 # yay install
-WORKDIR "/build"
-RUN sudo -u ${USERNAME} git clone --depth 1 https://aur.archlinux.org/yay.git
-WORKDIR "/build/yay"
-RUN sudo -u ${USERNAME} makepkg --noconfirm -si &&\
-    sudo -u ${USERNAME} yay --afterclean --removemake --save &&\
-    pacman -Qtdq | xargs -r pacman --noconfirm -Rcns &&\
-    : "Remove caches forcely" &&\
-    : "[error] yes | pacman -Scc" &&\
-    rm -rf /home/${USERNAME}/.cache &&\
-    rm -rf /build
-
+COPY --from=u1and0/yay:latest /usr/bin/yay /usr/bin/yay
 
 # My dotfiles
 WORKDIR /home/${USERNAME}
@@ -92,6 +81,6 @@ RUN git clone --branch $branch\
 CMD ["/bin/bash"]
 
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
-      description="archlinux container. aur install by yay. yay -S {package}"\
-      description.ja="Archlinux コンテナ。yayによるaurインストール可能. yay -S {package}, dotfiles master branch"\
-      version="arlhlinux:5.0.1"
+      description="archlinux image. AUR packages are able to install by yay. yay -S {package}"\
+      description.ja="Archlinux イメージ。yayによるAURパッケージインストール可能. yay -S {package}, dotfiles develop branch"\
+      version="arlhlinux:5.1.0"

@@ -3,11 +3,12 @@
 ################################################################################
 
 # With:       reflector --verbose --country Japan --age 48 --protocol https --protocol rsync --sort rate --save /etc/pacman.d/mirrorlist
-# When:       2021-06-05 23:06:37 UTC
-# From:       https://www.archlinux.org/mirrors/status/json/
-# Retrieved:  2021-06-05 23:06:35 UTC
-# Last Check: 2021-06-05 22:14:14 UTC
+# When:       2022-01-01 20:48:52 UTC
+# From:       https://archlinux.org/mirrors/status/json/
+# Retrieved:  2022-01-01 20:48:50 UTC
+# Last Check: 2022-01-01 20:33:28 UTC
 
+Server = https://mirrors.cat.net/archlinux/$repo/os/$arch
 Server = https://ftp.jaist.ac.jp/pub/Linux/ArchLinux/$repo/os/$arch
 Server = rsync://ftp.jaist.ac.jp/pub/Linux/ArchLinux/$repo/os/$arch
 Server = rsync://ftp.tsukuba.wide.ad.jp/archlinux/$repo/os/$arch
