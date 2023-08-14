@@ -69,8 +69,8 @@ COPY --from=u1and0/yay:latest /usr/bin/yay /usr/bin/yay
 WORKDIR /home/${USERNAME}
 USER ${USERNAME}
 # `--build-arg=branch=v1.15.1` のようにしてブランチ名、タグ名指定しなければ
-# デフォルトではdevelopブランチをcloneしてくる
-ARG branch="develop"
+# デフォルトではmasterブランチをcloneしてくる
+ARG branch="master"
 RUN git clone --branch $branch\
     https://github.com/u1and0/dotfiles.git dotfiles &&\
     : "Replace dotfiles" &&\
