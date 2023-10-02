@@ -6,12 +6,12 @@
 # $ docker build --build-arg USERNAME=${USERNAME} --build-arg branch="develop" -t u1and0/archlinux .
 
 # Archlinux official image daily build version
-FROM archlinux/archlinux:base-devel
+FROM menci/archlinuxarm:latest
 
 # Get reflector Server setting for faster download
 # Same as `reflector --verbose --country Japan -l 10 --sort rate`
-COPY pacman.conf /etc/pacman.conf
-COPY mirrorlist /etc/pacman.d/mirrorlist
+# COPY pacman.conf /etc/pacman.conf
+# COPY mirrorlist /etc/pacman.d/mirrorlist
 
 # Japanese setting
 ARG SETLANG="ja_JP"
@@ -37,8 +37,9 @@ RUN : "Copy missing language pack '${SETLANG}'" &&\
 
 # Package update
 # `pacman-key --init` must run at first
-RUN pacman-key --init &&\
-    pacman-key --populate archlinux &&\
+# RUN pacman-key --init &&\
+#     pacman-key --populate archlinux &&\
+RUN pacman -Sy --noconfirm archlinux-keyring &&\
     pacman -Syu --noconfirm git openssh &&\
     : "Clear cache" &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns
