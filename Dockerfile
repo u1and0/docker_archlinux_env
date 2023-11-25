@@ -6,7 +6,12 @@
 # $ docker build --build-arg USERNAME=${USERNAME} --build-arg branch="develop" -t u1and0/archlinux .
 
 # Archlinux official image daily build version
-FROM menci/archlinuxarm:base-devel
+FROM archlinux/archlinux:base-devel
+
+# Get reflector Server setting for faster download
+# Same as `reflector --verbose --country Japan -l 10 --sort rate`
+COPY pacman.conf /etc/pacman.conf
+COPY mirrorlist /etc/pacman.d/mirrorlist
 
 # Japanese setting
 ARG SETLANG="ja_JP"
@@ -31,7 +36,9 @@ RUN : "Copy missing language pack '${SETLANG}'" &&\
     ln -fs /usr/share/zoneinfo/${LOCALETIME} /etc/localtime
 
 # Package update
-RUN pacman -Sy --noconfirm archlinux-keyring &&\
+# `pacman-key --init` must run at first
+RUN pacman-key --init &&\
+    pacman-key --populate archlinux &&\
     pacman -Syu --noconfirm git openssh &&\
     : "Clear cache" &&\
     pacman -Qtdq | xargs -r pacman --noconfirm -Rcns
@@ -56,7 +63,7 @@ RUN echo "Build start with USERNAME: $USERNAME UID: $UID GID: $GID" &&\
     chown -R ${USERNAME}:${USERNAME} /build
 
 # yay install
-# COPY --from=u1and0/yay:arm64 /usr/bin/yay /usr/bin/yay
+COPY --from=u1and0/yay:latest /usr/bin/yay /usr/bin/yay
 
 # My dotfiles
 WORKDIR /home/${USERNAME}
@@ -76,4 +83,4 @@ CMD ["/bin/bash"]
 LABEL maintainer="u1and0 <e01.ando60@gmail.com>"\
       description="archlinux image. AUR packages are able to install by yay. yay -S {package}"\
       description.ja="Archlinux イメージ。yayによるAURパッケージインストール可能. yay -S {package}, dotfiles develop branch"\
-      version="arlhlinux:6.0.0arm"
+      version="arlhlinux:5.1.0"
